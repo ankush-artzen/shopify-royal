@@ -130,11 +130,7 @@ export default function RoyaltyTransactionsPage() {
             heading="No transactions found"
             image="https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg"
           >
-            <p>
-              {shop
-                ? `No transactions found for shop "${shop}".`
-                : "No transactions found."}
-            </p>
+            <p>{shop ? `No transactions found .` : "No transactions found."}</p>
           </EmptyState>
         ) : (
           <>
