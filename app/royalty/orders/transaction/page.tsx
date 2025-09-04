@@ -127,11 +127,12 @@ export default function RoyaltyTransactionsPage() {
           </div>
         ) : transactions.length === 0 ? (
           <EmptyState
-            heading="No transactions found"
-            image="https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg"
-          >
-            <p>{shop ? `No transactions found .` : "No transactions found."}</p>
-          </EmptyState>
+          heading="No transactions found"
+          image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+        >
+         
+        </EmptyState>
+        
         ) : (
           <>
             <IndexTable
