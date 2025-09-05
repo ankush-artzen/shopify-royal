@@ -14,7 +14,6 @@ import {
   Tooltip,
   Frame,
   Toast,
-  InlineStack,
 } from "@shopify/polaris";
 import { EditIcon, DeleteIcon, ViewIcon } from "@shopify/polaris-icons";
 import { useAppBridge } from "@shopify/app-bridge-react";
@@ -61,15 +60,23 @@ export default function RoyaltiesPage() {
   const [deleteTarget, setDeleteTarget] = useState<Royalty | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const [toastContent, setToastContent] = useState<string | null>(null);
+  // ✅ Toast state
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastError, setToastError] = useState(false);
 
+  const showToast = (message: string, error: boolean = false) => {
+    setToastMessage(message);
+    setToastError(error);
+  };
+
+  // ✅ Get shop from AppBridge config
   useEffect(() => {
     const shopFromConfig = app?.config?.shop;
     if (shopFromConfig) setShop(shopFromConfig);
     else setError("Unable to retrieve shop info. Please reload the app.");
   }, [app]);
 
+  // ✅ Fetch royalties
   const fetchRoyalties = useCallback(
     async (pageNumber: number = 1) => {
       if (!shop) return;
@@ -87,7 +94,10 @@ export default function RoyaltiesPage() {
         setPage(data.page || 1);
         setTotalPages(data.totalPages || 1);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong");
+        showToast(
+          err instanceof Error ? err.message : "Something went wrong",
+          true,
+        );
       } finally {
         setLoading(false);
       }
@@ -95,11 +105,12 @@ export default function RoyaltiesPage() {
     [shop, limit],
   );
 
-  // ✅ Fetch on shop or page change
+  // ✅ Fetch on shop/page change
   useEffect(() => {
     if (shop) fetchRoyalties(page);
   }, [shop, page, fetchRoyalties]);
 
+  // ✅ Delete royalty
   const handleDelete = async () => {
     if (!shop || !deleteTarget) return;
     setDeleteLoading(true);
@@ -114,19 +125,16 @@ export default function RoyaltiesPage() {
         throw new Error(errorData.error || "Failed to delete royalty");
       }
       await fetchRoyalties(page);
-      setToastContent("Royalty deleted successfully");
-      setToastError(false);
+      showToast("Royalty deleted successfully");
       setDeleteTarget(null);
     } catch (err) {
-      setToastContent(
-        err instanceof Error ? err.message : "Something went wrong",
-      );
-      setToastError(true);
+      showToast(err instanceof Error ? err.message : "Something went wrong", true);
     } finally {
       setDeleteLoading(false);
     }
   };
 
+  // ✅ Update royalty
   const handleUpdate = async (shopifyId: string, newRoyality: number) => {
     if (!shop || !shopifyId) return;
     try {
@@ -144,23 +152,15 @@ export default function RoyaltiesPage() {
       }
       await fetchRoyalties(page);
       setActiveEdit(null);
-      setToastContent("Royalty updated successfully");
-      setToastError(false);
+      showToast("Royalty updated successfully");
     } catch (err) {
-      setToastContent(
-        err instanceof Error ? err.message : "Something went wrong",
-      );
-      setToastError(true);
+      showToast(err instanceof Error ? err.message : "Something went wrong", true);
     }
   };
 
-  const handlePrev = () => {
-    if (page > 1) setPage(page - 1);
-  };
-
-  const handleNext = () => {
-    if (page < totalPages) setPage(page + 1);
-  };
+  // ✅ Pagination
+  const handlePrev = () => page > 1 && setPage(page - 1);
+  const handleNext = () => page < totalPages && setPage(page + 1);
 
   return (
     <Frame>
@@ -200,11 +200,7 @@ export default function RoyaltiesPage() {
                 ]}
               >
                 {royalties.map((royalty, index) => (
-                  <IndexTable.Row
-                    id={royalty.id}
-                    key={royalty.id}
-                    position={index}
-                  >
+                  <IndexTable.Row id={royalty.id} key={royalty.id} position={index}>
                     <IndexTable.Cell>
                       <div className="flex items-center gap-2 min-w-[220px] max-w-[240px] truncate">
                         <Thumbnail
@@ -257,10 +253,7 @@ export default function RoyaltiesPage() {
                             icon={ViewIcon}
                             onClick={() => {
                               if (!shop) return;
-                              const storeHandle = shop.replace(
-                                ".myshopify.com",
-                                "",
-                              );
+                              const storeHandle = shop.replace(".myshopify.com", "");
                               const shopifyAdminUrl = `https://admin.shopify.com/store/${storeHandle}/products/${royalty.shopifyId}`;
                               window.open(shopifyAdminUrl, "_blank");
                             }}
@@ -300,6 +293,7 @@ export default function RoyaltiesPage() {
           )}
         </Card>
 
+        {/* Edit Modal */}
         {activeEdit && (
           <EditRoyaltyModal
             open
@@ -309,6 +303,7 @@ export default function RoyaltiesPage() {
           />
         )}
 
+        {/* Delete Modal */}
         {deleteTarget && (
           <DeleteConfirmationModal
             open
@@ -322,11 +317,12 @@ export default function RoyaltiesPage() {
           />
         )}
 
-        {toastContent && (
+        {/* Toast Notifications */}
+        {toastMessage && (
           <Toast
-            content={toastContent}
+            content={toastMessage}
             error={toastError}
-            onDismiss={() => setToastContent(null)}
+            onDismiss={() => setToastMessage(null)}
           />
         )}
       </Page>

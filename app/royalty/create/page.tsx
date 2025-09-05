@@ -260,7 +260,7 @@ export default function AssignRoyalty() {
                     label="Designer ID"
                     value={selectedDesigner}
                     onChange={setSelectedDesigner}
-                    placeholder="Enter designer ID"
+                    placeholder="Enter designer ID-RP12345678901 like this"
                     autoComplete="off"
                     disabled={!billingActive}
                   />
