@@ -11,8 +11,10 @@ import {
   Badge,
   Icon,
   InlineStack,
+  Text,
 } from "@shopify/polaris";
 import { useRouter } from "next/navigation";
+import { Tooltip } from "@shopify/polaris";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@shopify/polaris-icons";
 
@@ -127,12 +129,9 @@ export default function RoyaltyTransactionsPage() {
           </div>
         ) : transactions.length === 0 ? (
           <EmptyState
-          heading="No transactions found"
-          image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-        >
-         
-        </EmptyState>
-        
+            heading="No transactions found"
+            image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
+          ></EmptyState>
         ) : (
           <>
             <IndexTable
@@ -143,9 +142,9 @@ export default function RoyaltyTransactionsPage() {
               itemCount={transactions.length}
               selectable={false}
               headings={[
-                { title: "Charge ID" },
+                { title: "Transaction Charge ID" },
                 { title: "Order ID" },
-                { title: "Price" },
+                { title: "Royality Price" },
                 // { title: "Balance Used" },
                 // { title: "Balance Remaining" },
                 { title: "Royalty %" },
@@ -156,9 +155,13 @@ export default function RoyaltyTransactionsPage() {
             >
               {transactions.map((tx, index) => (
                 <IndexTable.Row id={tx.id} key={tx.id} position={index}>
-                  <IndexTable.Cell>
-                    {tx.shopifyTransactionChargeId}
-                  </IndexTable.Cell>
+                  <InlineStack>
+                    <IndexTable.Cell>
+                      <span style={{ fontWeight: "bold" }}>
+                        {tx.shopifyTransactionChargeId}
+                      </span>
+                    </IndexTable.Cell>
+                  </InlineStack>
                   <IndexTable.Cell>{tx.orderId}</IndexTable.Cell>
                   <IndexTable.Cell>
                     {tx.price?.toFixed(2)} {tx.currency}
@@ -173,7 +176,14 @@ export default function RoyaltyTransactionsPage() {
                     {tx.royaltypercentage?.toFixed(2) ?? "-"}%
                   </IndexTable.Cell>
                   <IndexTable.Cell>{tx.designerId || "-"}</IndexTable.Cell>
-                  <IndexTable.Cell>{tx.description || "-"}</IndexTable.Cell>
+                  <IndexTable.Cell>
+                    <Tooltip content={tx.description || "No description"}>
+                      <Text as="span" truncate>
+                        {tx.description || "-"}
+                      </Text>
+                    </Tooltip>
+                  </IndexTable.Cell>
+
                   <IndexTable.Cell>
                     {tx.createdAt
                       ? new Date(tx.createdAt).toLocaleString()

@@ -85,11 +85,7 @@ export default function RoyaltiesPage() {
     fetchRoyalties();
   }, [shop, page, limit]);
 
-  const renderCurrencyBadge = (currency: string) => (
-    <Badge size="medium" tone="info">
-      {currency}
-    </Badge>
-  );
+
 
   const totalPages = Math.ceil(totalOrders / limit);
 
@@ -186,7 +182,7 @@ export default function RoyaltiesPage() {
                   key="total-row"
                   position={orders.length}
                 >
-                  <IndexTable.Cell colSpan={3}>
+                  <IndexTable.Cell colSpan={2}>
                     <Text as="h2" fontWeight="bold">
                       TOTAL
                     </Text>
@@ -226,7 +222,6 @@ export default function RoyaltiesPage() {
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 
                 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                
                 <Icon source={ChevronRightIcon} tone="base" />
               </button>
             </div>
